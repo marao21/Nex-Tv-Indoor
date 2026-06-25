@@ -383,7 +383,7 @@ function WidgetContentRenderer({
           <img src={url} alt={item.title} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
           <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-slate-950 via-slate-900/60 to-transparent p-6 text-left">
             <h3 className="text-2xl font-black uppercase text-amber-500">{item.title}</h3>
-            <p className="text-sm text-slate-300 mt-1">Imagem Corporativa • Mídia Indoor VTX</p>
+            <p className="text-sm text-slate-300 mt-1">Imagem Corporativa • Nex Tv Indoor</p>
           </div>
         </div>
       );
@@ -616,7 +616,7 @@ function WidgetContentRenderer({
 
     case WidgetType.COUNTDOWN: {
       const targetDate = item.config.countdownDate || "2026-12-31T23:59:59";
-      const label = item.config.countdownLabel || "Grande Evento Anual VTX";
+      const label = item.config.countdownLabel || "Grande Evento Anual Nex Tv";
 
       return (
         <div className="flex flex-col items-center justify-center p-8 w-full h-full bg-gradient-to-br from-indigo-950 via-slate-900 to-slate-950 text-center relative overflow-hidden">

@@ -839,7 +839,7 @@ export default function ScreenConfigurator({ screen, onBack, onSave }: ScreenCon
                         disabled={isAiGenerating}
                         className="text-[10px] font-black text-amber-500 hover:text-amber-400 flex items-center gap-1 cursor-pointer"
                       >
-                        <Sparkles className="w-3.5 h-3.5" /> {isAiGenerating ? "Gerando..." : "Gerar com IA VTX"}
+                        <Sparkles className="w-3.5 h-3.5" /> {isAiGenerating ? "Gerando..." : "Gerar com IA Nex"}
                       </button>
                     </div>
                     <textarea

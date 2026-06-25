@@ -56,11 +56,11 @@ export default function AdminPanel({ screens, onSelectScreen, onCreateScreen, on
       {/* Premium Header */}
       <header className="bg-slate-900 border-b border-slate-800 py-4 px-6 flex items-center justify-between shadow-md">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-amber-500 rounded-xl flex items-center justify-center font-black text-slate-950 text-lg shadow-lg shadow-amber-500/10">
-            VTX
+          <div className="w-10 h-10 bg-amber-500 rounded-xl flex items-center justify-center font-black text-slate-950 text-xs shadow-lg shadow-amber-500/10">
+            NEX
           </div>
           <div>
-            <h1 className="text-md font-black uppercase tracking-wider text-white">Painel de Mídia Indoor</h1>
+            <h1 className="text-md font-black uppercase tracking-wider text-white">Nex Tv Indoor</h1>
             <p className="text-[10px] text-amber-500 font-extrabold uppercase tracking-widest">Sinalização Digital Integrada</p>
           </div>
         </div>

@@ -1,5 +1,5 @@
 {
-  "name": "VTX Painel de Mídia Indoor",
+  "name": "Nex Tv Indoor",
   "description": "Gerenciador completo de Mídia Indoor e TV Corporativa com widgets dinâmicos de clima, notícias, cotações, QR code e geração assistida por IA.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]

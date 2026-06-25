@@ -114,6 +114,6 @@ export const TRIVIA_PRESENTS = [
 
 export const ANNOUNCEMENT_PRESENTS = [
   { title: "Café Fresco", content: "Atenção equipe! Um lote de café fresco e especial acaba de ser preparado na copa. Venha recarregar suas energias!", extra: "Comunidade" },
-  { title: "Ideia Sustentável", content: "Substitua copos descartáveis por canecas térmicas reutilizáveis. Pequenos gestos corporativos fazem grande diferença para o planeta.", extra: "Eco VTX" },
+  { title: "Ideia Sustentável", content: "Substitua copos descartáveis por canecas térmicas reutilizáveis. Pequenos gestos corporativos fazem grande diferença para o planeta.", extra: "Eco Nex" },
   { title: "Aniversariantes do Mês", content: "Desejamos parabéns e muito sucesso a todos os nossos colegas de equipe que celebram aniversário este mês!", extra: "Recursos Humanos" }
 ];
