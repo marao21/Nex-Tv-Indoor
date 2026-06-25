@@ -26,7 +26,8 @@ import {
   BookOpen,
   HelpCircle,
   X,
-  Volume2
+  Volume2,
+  AlertTriangle
 } from "lucide-react";
 import { PRESET_IMAGES, PRESET_VIDEOS } from "../data";
 import TVPlayer from "./TVPlayer";
@@ -42,6 +43,7 @@ export default function ScreenConfigurator({ screen, onBack, onSave }: ScreenCon
   const [activeWidget, setActiveWidget] = useState<WidgetItem | null>(null);
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [widgetIndexToDelete, setWidgetIndexToDelete] = useState<number | null>(null);
   const [isAiGenerating, setIsAiGenerating] = useState(false);
   const [copied, setCopied] = useState(false);
 
@@ -121,7 +123,6 @@ export default function ScreenConfigurator({ screen, onBack, onSave }: ScreenCon
 
   // Delete widget
   const deleteWidget = (index: number) => {
-    if (!confirm("Tem certeza que deseja remover este widget?")) return;
     const newItems = editedScreen.items.filter((_, idx) => idx !== index);
 
     const updated = { ...editedScreen, items: newItems, updatedAt: new Date().toISOString() };
@@ -369,9 +370,27 @@ export default function ScreenConfigurator({ screen, onBack, onSave }: ScreenCon
                   </button>
                 </div>
                 {editedScreen.orientation === "vertical" && (
-                  <p className="text-[10px] text-slate-500 mt-2 font-medium">
-                    * No modo vertical, o conteúdo se adapta automaticamente para monitores ou TVs virados em 90°.
-                  </p>
+                  <div className="mt-3 space-y-2 bg-slate-950 p-3.5 rounded-xl border border-slate-800">
+                    <label className="block text-[10px] font-black uppercase tracking-widest text-amber-500">
+                      Rotação para TV Box / Link do Player
+                    </label>
+                    <select
+                      value={editedScreen.tvRotation || "-90"}
+                      onChange={(e) => {
+                        const updated = { ...editedScreen, tvRotation: e.target.value as "none" | "90" | "-90", updatedAt: new Date().toISOString() };
+                        setEditedScreen(updated);
+                        onSave(updated);
+                      }}
+                      className="w-full bg-slate-900 border border-slate-800 outline-none rounded-lg px-2.5 py-1.5 text-xs font-bold text-slate-300 h-9"
+                    >
+                      <option value="-90">90° Anti-horário (Recomendado / Igual à Foto)</option>
+                      <option value="90">90° Horário</option>
+                      <option value="none">Sem Rotação (Usar se a TV Box já rotaciona a tela)</option>
+                    </select>
+                    <p className="text-[9px] text-slate-500 leading-relaxed">
+                      💡 <strong>Como funciona nas Box TVs:</strong> A maioria das Box TVs não permite rotacionar a tela do sistema. Mantendo em <strong>90° Anti-horário</strong>, o link do player rotacionará o conteúdo automaticamente. Assim, quando você virar a TV fisicamente na parede, a imagem ficará perfeita e na vertical!
+                    </p>
+                  </div>
                 )}
               </div>
 
@@ -567,7 +586,7 @@ export default function ScreenConfigurator({ screen, onBack, onSave }: ScreenCon
 
                     {/* Trash delete button */}
                     <button
-                      onClick={() => deleteWidget(idx)}
+                      onClick={() => setWidgetIndexToDelete(idx)}
                       className="p-2 hover:bg-rose-950/50 hover:text-rose-400 text-slate-500 rounded-lg transition-colors cursor-pointer"
                       title="Excluir"
                     >
@@ -1103,6 +1122,49 @@ export default function ScreenConfigurator({ screen, onBack, onSave }: ScreenCon
                 className="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-slate-950 font-black rounded-xl text-xs uppercase cursor-pointer"
               >
                 Salvar Configurações
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* WIDGET REMOVE CONFIRMATION MODAL */}
+      {widgetIndexToDelete !== null && (
+        <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
+          <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-sm w-full p-6 shadow-2xl text-center">
+            <div className="w-12 h-12 rounded-full bg-rose-500/10 border border-rose-500/20 flex items-center justify-center text-rose-500 mx-auto mb-4 animate-bounce">
+              <AlertTriangle className="w-6 h-6" />
+            </div>
+            <h3 className="text-lg font-black uppercase text-slate-100 mb-2">
+              Remover Widget
+            </h3>
+            <p className="text-xs text-slate-400 mb-6 leading-relaxed">
+              Tem certeza que deseja remover este slide da programação?
+              {widgetIndexToDelete >= 0 && editedScreen.items[widgetIndexToDelete] && (
+                <span className="block text-white font-extrabold mt-1 uppercase text-[10px]">
+                  "{getWidgetName(editedScreen.items[widgetIndexToDelete].type)}" - {editedScreen.items[widgetIndexToDelete].title}
+                </span>
+              )}
+            </p>
+
+            {/* Actions */}
+            <div className="flex justify-center gap-3">
+              <button
+                type="button"
+                onClick={() => setWidgetIndexToDelete(null)}
+                className="px-4 py-2 bg-slate-800 hover:bg-slate-750 text-slate-300 font-bold rounded-xl text-xs uppercase cursor-pointer"
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  deleteWidget(widgetIndexToDelete);
+                  setWidgetIndexToDelete(null);
+                }}
+                className="px-4 py-2 bg-rose-600 hover:bg-rose-500 text-white font-black rounded-xl text-xs uppercase cursor-pointer"
+              >
+                Remover Slide
               </button>
             </div>
           </div>

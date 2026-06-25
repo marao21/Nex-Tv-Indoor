@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Screen, WidgetItem, WidgetType } from "../types";
 import {
   Sun,
@@ -133,8 +133,61 @@ export default function TVPlayer({ screen, onClose, isEmbedPreview = false }: TV
     }
   };
 
+  const rotation = screen.tvRotation || "-90";
+  const isVertical = screen.orientation === "vertical";
+
+  let playerStyle: React.CSSProperties = {};
+  if (!isEmbedPreview) {
+    if (isVertical) {
+      if (rotation === "-90") {
+        playerStyle = {
+          position: "fixed",
+          top: "100%",
+          left: "0",
+          width: "100vh",
+          height: "100vw",
+          transform: "rotate(-90deg)",
+          transformOrigin: "top left",
+          overflow: "hidden",
+          zIndex: 50,
+        };
+      } else if (rotation === "90") {
+        playerStyle = {
+          position: "fixed",
+          top: "0",
+          left: "100%",
+          width: "100vh",
+          height: "100vw",
+          transform: "rotate(90deg)",
+          transformOrigin: "top left",
+          overflow: "hidden",
+          zIndex: 50,
+        };
+      } else {
+        playerStyle = {
+          position: "fixed",
+          top: 0,
+          left: 0,
+          width: "100vw",
+          height: "100vh",
+          zIndex: 50,
+        };
+      }
+    } else {
+      playerStyle = {
+        position: "fixed",
+        top: 0,
+        left: 0,
+        width: "100vw",
+        height: "100vh",
+        zIndex: 50,
+      };
+    }
+  }
+
   return (
     <div
+      style={playerStyle}
       className={`relative bg-slate-950 text-white overflow-hidden select-none font-sans flex flex-col justify-between ${
         isEmbedPreview 
           ? (screen.orientation === "vertical" ? "h-[500px] w-[281px] mx-auto rounded-lg border-4 border-slate-800 shadow-2xl" : "h-[450px] w-full rounded-lg border-4 border-slate-800 shadow-2xl") 

@@ -12,7 +12,8 @@ import {
   User,
   Activity,
   Calendar,
-  Sparkles
+  Sparkles,
+  AlertTriangle
 } from "lucide-react";
 
 interface AdminPanelProps {
@@ -24,6 +25,7 @@ interface AdminPanelProps {
 
 export default function AdminPanel({ screens, onSelectScreen, onCreateScreen, onDeleteScreen }: AdminPanelProps) {
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [screenToDelete, setScreenToDelete] = useState<Screen | null>(null);
   const [newScreenName, setNewScreenName] = useState("");
   const [selectedTemplate, setSelectedTemplate] = useState("empty");
   const [copiedId, setCopiedId] = useState<string | null>(null);
@@ -109,9 +111,7 @@ export default function AdminPanel({ screens, onSelectScreen, onCreateScreen, on
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
-                    if (confirm(`Tem certeza que deseja excluir a tela "${screen.name}"?`)) {
-                      onDeleteScreen(screen.id);
-                    }
+                    setScreenToDelete(screen);
                   }}
                   className="absolute top-4 right-4 p-1.5 bg-slate-950 hover:bg-rose-950/80 hover:text-rose-400 text-slate-500 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity z-10"
                   title="Excluir tela"
@@ -311,6 +311,44 @@ export default function AdminPanel({ screens, onSelectScreen, onCreateScreen, on
               </button>
             </div>
           </form>
+        </div>
+      )}
+
+      {/* SCREEN DELETE CONFIRMATION MODAL */}
+      {screenToDelete && (
+        <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
+          <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-sm w-full p-6 shadow-2xl text-center">
+            <div className="w-12 h-12 rounded-full bg-rose-500/10 border border-rose-500/20 flex items-center justify-center text-rose-500 mx-auto mb-4 animate-bounce">
+              <AlertTriangle className="w-6 h-6" />
+            </div>
+            <h3 className="text-lg font-black uppercase text-slate-100 mb-2">
+              Confirmar Exclusão
+            </h3>
+            <p className="text-xs text-slate-400 mb-6 leading-relaxed">
+              Tem certeza que deseja excluir a tela <span className="text-white font-extrabold">"{screenToDelete.name}"</span>? Esta ação não pode ser desfeita e irá interromper a exibição nesta TV.
+            </p>
+
+            {/* Actions */}
+            <div className="flex justify-center gap-3">
+              <button
+                type="button"
+                onClick={() => setScreenToDelete(null)}
+                className="px-4 py-2 bg-slate-800 hover:bg-slate-750 text-slate-300 font-bold rounded-xl text-xs uppercase cursor-pointer"
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  onDeleteScreen(screenToDelete.id);
+                  setScreenToDelete(null);
+                }}
+                className="px-4 py-2 bg-rose-600 hover:bg-rose-500 text-white font-black rounded-xl text-xs uppercase cursor-pointer"
+              >
+                Excluir Tela
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

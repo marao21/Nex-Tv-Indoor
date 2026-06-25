@@ -45,6 +45,7 @@ export interface Screen {
   name: string;
   description: string;
   orientation: "horizontal" | "vertical";
+  tvRotation?: "none" | "90" | "-90";
   splitScreen: boolean;
   showNewsTicker: boolean;
   updatedAt: string;
