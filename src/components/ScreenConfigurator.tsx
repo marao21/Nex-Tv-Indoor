@@ -142,8 +142,8 @@ export default function ScreenConfigurator({ screen, onBack, onSave }: ScreenCon
       [WidgetType.COUNTDOWN]: { countdownDate: "2026-12-31T23:59:59", countdownLabel: "Festa de Fim de Ano" },
       [WidgetType.NEWS]: { newsCategory: "geral" },
       [WidgetType.LOTTERY]: {},
-      [WidgetType.VERSE]: { bibleTopic: "Paz", textColor: "#ffffff", bgColor: "#1e1b4b" },
-      [WidgetType.TRIVIA]: { triviaTopic: "Ciência", textColor: "#ffffff", bgColor: "#124e3f" }
+      [WidgetType.VERSE]: { bibleTopic: "Geral", textColor: "#ffffff", bgColor: "#1e1b4b" },
+      [WidgetType.TRIVIA]: { triviaTopic: "Geral", textColor: "#ffffff", bgColor: "#124e3f" }
     };
 
     const newWidget: WidgetItem = {
@@ -716,38 +716,70 @@ export default function ScreenConfigurator({ screen, onBack, onSave }: ScreenCon
 
               {/* VIDEO TYPE CONFIG */}
               {activeWidget.type === WidgetType.VIDEO && (
-                <div className="space-y-3">
+                <div className="space-y-4">
                   <div>
                     <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">
-                      URL do Vídeo (MP4, Direct Link)
+                      URL do Vídeo (MP4, Direct Link ou YouTube)
                     </label>
                     <input
                       type="text"
                       value={activeWidget.config.url || ""}
                       onChange={(e) => setActiveWidget({ ...activeWidget, config: { ...activeWidget.config, url: e.target.value } })}
                       className="w-full bg-slate-950 border border-slate-800 outline-none rounded-xl px-3.5 py-2 text-slate-100 text-xs font-mono"
-                      placeholder="https://meusite.com/video.mp4"
+                      placeholder="Cole links de vídeos separados por vírgula para exibir mais de um..."
                     />
+                    <p className="text-[9px] text-slate-500 mt-1.5 leading-relaxed">
+                      💡 Você pode inserir vários links separados por vírgula. O sistema irá reproduzi-los em sequência (ou permitirá alterná-los). Suporta links diretos MP4 e links do YouTube.
+                    </p>
                   </div>
 
                   {/* Video presets list */}
                   <div>
                     <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">
-                      Ou selecione um Vídeo de Relaxamento/Estético
+                      Ou clique para selecionar um ou mais Vídeos Estéticos
                     </label>
                     <div className="grid grid-cols-2 gap-2">
-                      {PRESET_VIDEOS.map((vid, i) => (
-                        <button
-                          key={i}
-                          onClick={() => setActiveWidget({ ...activeWidget, config: { ...activeWidget.config, url: vid.url } })}
-                          className={`p-2 border rounded-xl text-left bg-slate-950 hover:bg-slate-900 transition-all flex items-center gap-2 cursor-pointer ${
-                            activeWidget.config.url === vid.url ? "border-amber-500" : "border-slate-800"
-                          }`}
-                        >
-                          <Video className="w-4 h-4 text-slate-400" />
-                          <span className="text-[10px] font-bold text-slate-300 truncate">{vid.name}</span>
-                        </button>
-                      ))}
+                      {PRESET_VIDEOS.map((vid, i) => {
+                        const isSelected = activeWidget.config.url
+                          ? activeWidget.config.url.split(",").map(u => u.trim()).includes(vid.url)
+                          : false;
+
+                        const handleSelectPreset = () => {
+                          const currentUrls = activeWidget.config.url
+                            ? activeWidget.config.url.split(",").map(u => u.trim()).filter(Boolean)
+                            : [];
+                          let updatedUrls: string[];
+                          if (currentUrls.includes(vid.url)) {
+                            updatedUrls = currentUrls.filter(u => u !== vid.url);
+                          } else {
+                            updatedUrls = [...currentUrls, vid.url];
+                          }
+                          setActiveWidget({
+                            ...activeWidget,
+                            config: {
+                              ...activeWidget.config,
+                              url: updatedUrls.join(", ")
+                            }
+                          });
+                        };
+
+                        return (
+                          <button
+                            key={i}
+                            type="button"
+                            onClick={handleSelectPreset}
+                            className={`p-2.5 border rounded-xl text-left bg-slate-950 hover:bg-slate-900 transition-all flex items-center gap-2 cursor-pointer ${
+                              isSelected ? "border-amber-500 bg-amber-950/20 text-amber-400" : "border-slate-800 text-slate-300"
+                            }`}
+                          >
+                            <Video className={`w-4 h-4 ${isSelected ? "text-amber-500" : "text-slate-500"}`} />
+                            <div className="flex flex-col min-w-0 flex-1">
+                              <span className="text-[10px] font-bold truncate">{vid.name}</span>
+                              <span className="text-[8px] opacity-60 font-mono truncate">{vid.url.substring(0, 30)}...</span>
+                            </div>
+                          </button>
+                        );
+                      })}
                     </div>
                   </div>
                 </div>
@@ -947,11 +979,11 @@ export default function ScreenConfigurator({ screen, onBack, onSave }: ScreenCon
                       </button>
                     </div>
                     <select
-                      value={activeWidget.config.bibleTopic || "Paz"}
+                      value={activeWidget.config.bibleTopic || "Geral"}
                       onChange={(e) => setActiveWidget({ ...activeWidget, config: { ...activeWidget.config, bibleTopic: e.target.value } })}
                       className="w-full bg-slate-950 border border-slate-800 rounded-xl outline-none px-3 py-2 text-xs font-bold text-slate-300 h-10"
                     >
-                      {["Esperança", "Força", "Paz", "Fé", "Amor"].map((t) => (
+                      {["Geral", "Esperança", "Força", "Paz", "Fé", "Amor"].map((t) => (
                         <option key={t} value={t}>{t}</option>
                       ))}
                     </select>
@@ -1009,11 +1041,11 @@ export default function ScreenConfigurator({ screen, onBack, onSave }: ScreenCon
                       </button>
                     </div>
                     <select
-                      value={activeWidget.config.triviaTopic || "Ciência"}
+                      value={activeWidget.config.triviaTopic || "Geral"}
                       onChange={(e) => setActiveWidget({ ...activeWidget, config: { ...activeWidget.config, triviaTopic: e.target.value } })}
                       className="w-full bg-slate-950 border border-slate-800 rounded-xl outline-none px-3 py-2 text-xs font-bold text-slate-300 h-10"
                     >
-                      {["Espaço", "Ciência", "Animais", "História", "Natureza"].map((t) => (
+                      {["Geral", "Espaço", "Ciência", "Animais", "História", "Natureza"].map((t) => (
                         <option key={t} value={t}>{t}</option>
                       ))}
                     </select>

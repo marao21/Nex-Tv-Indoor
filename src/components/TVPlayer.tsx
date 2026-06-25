@@ -19,7 +19,9 @@ import {
   Tv,
   X,
   VolumeX,
-  Volume2
+  Volume2,
+  ChevronLeft,
+  ChevronRight
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { BIBLE_PRESENTS, TRIVIA_PRESENTS, ANNOUNCEMENT_PRESENTS } from "../data";
@@ -134,8 +136,10 @@ export default function TVPlayer({ screen, onClose, isEmbedPreview = false }: TV
   return (
     <div
       className={`relative bg-slate-950 text-white overflow-hidden select-none font-sans flex flex-col justify-between ${
-        isEmbedPreview ? "h-[450px] w-full rounded-lg border-4 border-slate-800 shadow-2xl" : "fixed inset-0 w-screen h-screen z-50"
-      } ${screen.orientation === "vertical" ? "portrait-player" : ""}`}
+        isEmbedPreview 
+          ? (screen.orientation === "vertical" ? "h-[500px] w-[281px] mx-auto rounded-lg border-4 border-slate-800 shadow-2xl" : "h-[450px] w-full rounded-lg border-4 border-slate-800 shadow-2xl") 
+          : "fixed inset-0 w-screen h-screen z-50"
+      }`}
     >
       {/* Player Close Overlay Button */}
       {onClose && !isEmbedPreview && (
@@ -149,9 +153,13 @@ export default function TVPlayer({ screen, onClose, isEmbedPreview = false }: TV
       )}
 
       {/* Main Layout Container */}
-      <div className="flex-1 flex overflow-hidden w-full h-full">
+      <div className={`flex-1 flex overflow-hidden w-full h-full ${screen.orientation === "vertical" ? "flex-col" : "flex-row"}`}>
         {/* Main Content Area */}
-        <div className={`flex-1 relative flex flex-col h-full bg-slate-900 transition-all duration-500 ${screen.splitScreen ? "w-[72%]" : "w-full"}`}>
+        <div className={`relative flex flex-col bg-slate-900 transition-all duration-500 ${
+          screen.splitScreen 
+            ? (screen.orientation === "vertical" ? "h-[62%] w-full" : "w-[72%] h-full") 
+            : "w-full h-full"
+        }`}>
           <AnimatePresence mode="wait">
             <motion.div
               key={currentItem.id}
@@ -161,7 +169,13 @@ export default function TVPlayer({ screen, onClose, isEmbedPreview = false }: TV
               transition={{ duration: 0.6 }}
               className="absolute inset-0 w-full h-full flex flex-col justify-center items-center"
             >
-              {renderWidgetContent(currentItem, renderWeatherIcon, videoMuted, setVideoMuted, weatherData)}
+              <WidgetContentRenderer
+                item={currentItem}
+                renderWeatherIcon={renderWeatherIcon}
+                videoMuted={videoMuted}
+                setVideoMuted={setVideoMuted}
+                weatherData={weatherData}
+              />
             </motion.div>
           </AnimatePresence>
 
@@ -179,56 +193,66 @@ export default function TVPlayer({ screen, onClose, isEmbedPreview = false }: TV
 
         {/* Persistent Side Panel (Modo Split Screen) */}
         {screen.splitScreen && (
-          <div className="w-[28%] bg-slate-950 border-l border-slate-800 flex flex-col justify-between p-5 h-full select-none">
+          <div className={`${
+            screen.orientation === "vertical" 
+              ? "w-full h-[38%] border-t border-l-0 p-4 flex-row" 
+              : "w-[28%] h-full border-l p-5 flex-col"
+          } bg-slate-950 border-slate-800 flex justify-between select-none overflow-hidden gap-3`}>
+            
             {/* 1. Live Digital Clock */}
-            <div className="bg-slate-900/60 p-4 rounded-xl border border-slate-800 text-center relative overflow-hidden group">
+            <div className={`bg-slate-900/60 rounded-xl border border-slate-800 text-center relative overflow-hidden group flex flex-col justify-center ${
+              screen.orientation === "vertical" ? "flex-1 h-full p-2" : "p-4"
+            }`}>
               <div className="absolute top-0 left-0 w-1 h-full bg-amber-500" />
               <Clock />
             </div>
 
             {/* 2. Weather Sidebar Widget */}
-            <div className="bg-slate-900/60 p-4 rounded-xl border border-slate-800 relative overflow-hidden">
+            <div className={`bg-slate-900/60 rounded-xl border border-slate-800 relative overflow-hidden flex flex-col justify-center ${
+              screen.orientation === "vertical" ? "flex-1 h-full p-2" : "p-4"
+            }`}>
               <div className="absolute top-0 left-0 w-1 h-full bg-sky-500" />
-              <h4 className="text-xs uppercase tracking-widest text-slate-500 font-bold mb-2 flex items-center gap-1.5">
-                <Sun className="w-3.5 h-3.5 text-amber-500" /> Clima Local
+              <h4 className="text-xs uppercase tracking-widest text-slate-500 font-bold mb-1.5 flex items-center gap-1.5 justify-center sm:justify-start">
+                <Sun className="w-3.5 h-3.5 text-amber-500" /> Clima
               </h4>
               {weatherData ? (
-                <div className="flex items-center justify-between">
+                <div className={`flex items-center justify-between gap-1 ${screen.orientation === "vertical" ? "flex-col xs:flex-row text-center xs:text-left" : ""}`}>
                   <div>
-                    <p className="text-lg font-bold text-slate-100 truncate max-w-[130px]">{weatherData.city.split(",")[0]}</p>
-                    <p className="text-2xl font-black text-amber-500 mt-1">{weatherData.temp}°C</p>
-                    <p className="text-xs text-slate-400 mt-1 capitalize font-medium">{weatherData.condition}</p>
+                    <p className="text-sm font-bold text-slate-100 truncate max-w-[110px]">{weatherData.city.split(",")[0]}</p>
+                    <p className="text-lg font-black text-amber-500 mt-0.5">{weatherData.temp}°C</p>
                   </div>
                   <div className="flex flex-col items-center">
-                    {renderWeatherIcon(weatherData.icon, "w-14 h-14")}
-                    <div className="text-[10px] text-slate-500 mt-1">Umid: {weatherData.humidity}%</div>
+                    {renderWeatherIcon(weatherData.icon, screen.orientation === "vertical" ? "w-8 h-8" : "w-14 h-14")}
+                    <span className="text-[9px] text-slate-500 mt-0.5 hidden xs:inline">Umid: {weatherData.humidity}%</span>
                   </div>
                 </div>
               ) : (
                 <div className="animate-pulse flex items-center justify-between h-14">
-                  <div className="bg-slate-800 h-6 w-24 rounded" />
-                  <div className="bg-slate-800 h-12 w-12 rounded-full" />
+                  <div className="bg-slate-800 h-6 w-20 rounded" />
+                  <div className="bg-slate-800 h-10 w-10 rounded-full" />
                 </div>
               )}
             </div>
 
             {/* 3. Financial Quotes (Stocks) Sidebar Widget */}
-            <div className="bg-slate-900/60 p-4 rounded-xl border border-slate-800 relative overflow-hidden flex-1 my-3 flex flex-col justify-between">
+            <div className={`bg-slate-900/60 rounded-xl border border-slate-800 relative overflow-hidden flex flex-col justify-center ${
+              screen.orientation === "vertical" ? "flex-1 h-full p-2" : "flex-1 my-3 p-4 justify-between"
+            }`}>
               <div className="absolute top-0 left-0 w-1 h-full bg-emerald-500" />
-              <h4 className="text-xs uppercase tracking-widest text-slate-500 font-bold mb-2 flex items-center gap-1.5">
-                <TrendingUp className="w-3.5 h-3.5 text-emerald-500" /> Cotações de Mercado
+              <h4 className="text-xs uppercase tracking-widest text-slate-500 font-bold mb-1.5 flex items-center gap-1.5 justify-center sm:justify-start">
+                <TrendingUp className="w-3.5 h-3.5 text-emerald-500" /> Cotações
               </h4>
-              <div className="grid grid-cols-2 gap-2 flex-1 justify-center content-center">
+              <div className={`grid gap-1.5 justify-center content-center ${screen.orientation === "vertical" ? "grid-cols-2" : "grid-cols-2 flex-1"}`}>
                 {(stocksData.length > 0 ? stocksData : [
                   { symbol: "USD/BRL", value: "R$ 5,42", isUp: true, change: "+0.32%" },
                   { symbol: "EUR/BRL", value: "R$ 5,81", isUp: false, change: "-0.15%" },
-                  { symbol: "BTC/BRL", value: "R$ 345.500", isUp: true, change: "+2.41%" },
-                  { symbol: "IBOV", value: "121.250 pts", isUp: true, change: "+0.65%" }
-                ]).map((stock, i) => (
-                  <div key={i} className="bg-slate-950/80 p-2 rounded border border-slate-800/80 flex flex-col justify-center">
-                    <p className="text-[10px] font-mono text-slate-400 font-bold">{stock.symbol}</p>
-                    <p className="text-sm font-black text-slate-100">{stock.value}</p>
-                    <span className={`text-[9px] font-bold flex items-center gap-0.5 mt-0.5 ${stock.isUp ? "text-emerald-500" : "text-rose-500"}`}>
+                  { symbol: "BTC/BRL", value: "R$ 345k", isUp: true, change: "+2.41%" },
+                  { symbol: "IBOV", value: "121k pts", isUp: true, change: "+0.65%" }
+                ]).slice(0, screen.orientation === "vertical" ? 2 : 4).map((stock, i) => (
+                  <div key={i} className="bg-slate-950/80 p-1.5 rounded border border-slate-800/80 flex flex-col justify-center text-center xs:text-left">
+                    <p className="text-[9px] font-mono text-slate-400 font-bold">{stock.symbol}</p>
+                    <p className="text-xs font-black text-slate-100">{stock.value}</p>
+                    <span className={`text-[8px] font-bold flex items-center gap-0.5 mt-0.5 justify-center xs:justify-start ${stock.isUp ? "text-emerald-500" : "text-rose-500"}`}>
                       {stock.isUp ? "▲" : "▼"} {stock.change}
                     </span>
                   </div>
@@ -237,27 +261,29 @@ export default function TVPlayer({ screen, onClose, isEmbedPreview = false }: TV
             </div>
 
             {/* 4. Mini Lottery Results */}
-            <div className="bg-slate-900/60 p-3 rounded-xl border border-slate-800 relative overflow-hidden">
+            <div className={`bg-slate-900/60 rounded-xl border border-slate-800 relative overflow-hidden flex flex-col justify-center ${
+              screen.orientation === "vertical" ? "flex-1 h-full p-2" : "p-3"
+            }`}>
               <div className="absolute top-0 left-0 w-1 h-full bg-purple-500" />
-              <h4 className="text-xs uppercase tracking-widest text-slate-500 font-bold mb-1.5 flex items-center gap-1.5">
-                🎰 Loterias Caixa
+              <h4 className="text-xs uppercase tracking-widest text-slate-500 font-bold mb-1.5 flex items-center gap-1.5 justify-center sm:justify-start">
+                🎰 Loterias
               </h4>
               {lotteryData.length > 0 ? (
                 <div>
-                  <div className="flex justify-between items-center text-xs">
-                    <span className="font-bold text-purple-400">{lotteryData[0].name}</span>
-                    <span className="text-[10px] text-slate-500">{lotteryData[0].draw}</span>
+                  <div className="flex justify-between items-center text-[10px]">
+                    <span className="font-bold text-purple-400 truncate max-w-[60px]">{lotteryData[0].name}</span>
+                    <span className="text-[8px] text-slate-500 hidden xs:inline">{lotteryData[0].draw}</span>
                   </div>
-                  <div className="flex gap-1 mt-1 flex-wrap justify-center">
-                    {lotteryData[0].numbers.slice(0, 6).map((num: string, idx: number) => (
-                      <span key={idx} className="w-5 h-5 flex items-center justify-center rounded-full bg-purple-950 text-purple-200 border border-purple-700/50 font-mono text-[10px] font-bold">
+                  <div className="flex gap-0.5 mt-1 flex-wrap justify-center">
+                    {lotteryData[0].numbers.slice(0, screen.orientation === "vertical" ? 4 : 6).map((num: string, idx: number) => (
+                      <span key={idx} className="w-4.5 h-4.5 flex items-center justify-center rounded-full bg-purple-950 text-purple-200 border border-purple-700/50 font-mono text-[9px] font-bold">
                         {num}
                       </span>
                     ))}
                   </div>
                 </div>
               ) : (
-                <p className="text-[10px] text-slate-500">Buscando resultados...</p>
+                <p className="text-[9px] text-slate-500 text-center">Carregando...</p>
               )}
             </div>
           </div>
@@ -333,13 +359,19 @@ function Clock() {
 // ----------------------------------------------------
 // WIDGET CONTENT RENDERING ENGINE
 // ----------------------------------------------------
-function renderWidgetContent(
-  item: WidgetItem,
-  renderWeatherIcon: any,
-  videoMuted: boolean,
-  setVideoMuted: any,
-  weatherData: any
-) {
+function WidgetContentRenderer({
+  item,
+  renderWeatherIcon,
+  videoMuted,
+  setVideoMuted,
+  weatherData
+}: {
+  item: WidgetItem;
+  renderWeatherIcon: any;
+  videoMuted: boolean;
+  setVideoMuted: any;
+  weatherData: any;
+}) {
   const textColor = item.config.textColor || "#ffffff";
   const bgColor = item.config.bgColor || "#0f172a";
 
@@ -358,17 +390,75 @@ function renderWidgetContent(
     }
 
     case WidgetType.VIDEO: {
-      const url = item.config.url || "https://assets.mixkit.co/videos/preview/mixkit-waterfall-in-forest-2213-large.mp4";
+      const urls = item.config.url 
+        ? item.config.url.split(",").map(u => u.trim()).filter(Boolean)
+        : ["https://assets.mixkit.co/videos/preview/mixkit-waterfall-in-forest-2213-large.mp4"];
+      
+      const [currentIndex, setCurrentIndex] = useState(0);
+      const url = urls[currentIndex % urls.length];
+
+      const handleVideoEnded = () => {
+        if (urls.length > 1) {
+          setCurrentIndex((prev) => (prev + 1) % urls.length);
+        }
+      };
+
+      const getYouTubeId = (videoUrl: string) => {
+        const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+        const match = videoUrl.match(regExp);
+        return (match && match[2].length === 11) ? match[2] : null;
+      };
+
+      const youtubeId = getYouTubeId(url);
+
       return (
         <div className="w-full h-full relative bg-black flex justify-center items-center">
-          <video
-            src={url}
-            autoPlay
-            loop
-            muted={videoMuted}
-            className="w-full h-full object-cover"
-            playsInline
-          />
+          {youtubeId ? (
+            <iframe
+              src={`https://www.youtube.com/embed/${youtubeId}?autoplay=1&mute=${videoMuted ? 1 : 0}&loop=1&playlist=${youtubeId}&controls=0&modestbranding=1&rel=0`}
+              className="w-full h-full border-0"
+              allow="autoplay; encrypted-media"
+              allowFullScreen
+            />
+          ) : (
+            <video
+              key={url}
+              src={url}
+              autoPlay
+              loop={urls.length === 1}
+              onEnded={handleVideoEnded}
+              muted={videoMuted}
+              className="w-full h-full object-cover"
+              playsInline
+            />
+          )}
+
+          {/* Navigation Controls for Multiple Videos */}
+          {urls.length > 1 && (
+            <div className="absolute bottom-4 left-4 flex gap-2 z-20">
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setCurrentIndex((prev) => (prev - 1 + urls.length) % urls.length);
+                }}
+                className="p-1.5 bg-slate-950/80 hover:bg-slate-850 rounded-lg text-slate-300 cursor-pointer border border-slate-800 flex items-center justify-center shadow-lg transition-all"
+                title="Vídeo Anterior"
+              >
+                <ChevronLeft className="w-4.5 h-4.5" />
+              </button>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setCurrentIndex((prev) => (prev + 1) % urls.length);
+                }}
+                className="p-1.5 bg-slate-950/80 hover:bg-slate-850 rounded-lg text-slate-300 cursor-pointer border border-slate-800 flex items-center justify-center shadow-lg transition-all"
+                title="Próximo Vídeo"
+              >
+                <ChevronRight className="w-4.5 h-4.5" />
+              </button>
+            </div>
+          )}
+
           {/* Mute/Unmute Overlay Control */}
           <button
             onClick={(e) => {
@@ -379,9 +469,12 @@ function renderWidgetContent(
           >
             {videoMuted ? <VolumeX className="w-5 h-5 text-rose-400" /> : <Volume2 className="w-5 h-5 text-emerald-400" />}
           </button>
-          <div className="absolute top-4 left-4 bg-slate-950/70 border border-slate-800 rounded-lg px-3 py-1.5 flex items-center gap-1.5">
+          
+          <div className="absolute top-4 left-4 bg-slate-950/70 border border-slate-800 rounded-lg px-3 py-1.5 flex items-center gap-1.5 z-20">
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span className="text-xs font-bold text-slate-300">VIDEO PLAYER</span>
+            <span className="text-xs font-bold text-slate-300">
+              MÍDIA DE VÍDEO {urls.length > 1 ? `(${currentIndex % urls.length + 1}/${urls.length})` : ""}
+            </span>
           </div>
         </div>
       );
@@ -608,9 +701,10 @@ function renderWidgetContent(
     }
 
     case WidgetType.VERSE: {
-      const topic = item.config.bibleTopic || "Paz";
-      const presetList = BIBLE_PRESENTS.filter(b => b.title === topic);
-      const verse = item.config.items?.[0] || presetList[0] || BIBLE_PRESENTS[2];
+      const topic = item.config.bibleTopic || "Geral";
+      const presetList = topic === "Geral" ? BIBLE_PRESENTS : BIBLE_PRESENTS.filter(b => b.title === topic);
+      const verseIndex = Math.floor(Date.now() / 60000) % presetList.length;
+      const verse = item.config.items?.[0] || presetList[verseIndex] || BIBLE_PRESENTS[2];
 
       return (
         <div
@@ -620,7 +714,7 @@ function renderWidgetContent(
           {/* Subtle Christian Icon graphic overlay */}
           <div className="absolute top-6 left-6 flex items-center gap-2 opacity-70 font-sans">
             <span className="w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse" />
-            <span className="text-xs tracking-widest font-black uppercase text-amber-500">Versículo do Dia</span>
+            <span className="text-xs tracking-widest font-black uppercase text-amber-500">Versículo do Dia ({topic})</span>
           </div>
           <div className="max-w-3xl">
             <span className="text-5xl text-amber-500 opacity-60 select-none block text-center mb-3">“</span>
@@ -636,9 +730,10 @@ function renderWidgetContent(
     }
 
     case WidgetType.TRIVIA: {
-      const topic = item.config.triviaTopic || "Ciência";
-      const presetList = TRIVIA_PRESENTS.filter(t => t.title === topic);
-      const trivia = item.config.items?.[0] || presetList[0] || TRIVIA_PRESENTS[1];
+      const topic = item.config.triviaTopic || "Geral";
+      const presetList = topic === "Geral" ? TRIVIA_PRESENTS : TRIVIA_PRESENTS.filter(t => t.title === topic);
+      const triviaIndex = Math.floor(Date.now() / 60000) % presetList.length;
+      const trivia = item.config.items?.[0] || presetList[triviaIndex] || TRIVIA_PRESENTS[1];
 
       return (
         <div
@@ -647,7 +742,7 @@ function renderWidgetContent(
         >
           <div className="absolute top-6 left-6 flex items-center gap-2 opacity-80">
             <span className="w-2.5 h-2.5 rounded-full bg-sky-500 animate-pulse" />
-            <span className="text-xs tracking-widest font-black uppercase text-sky-400">CURIOSIDADE DO DIA</span>
+            <span className="text-xs tracking-widest font-black uppercase text-sky-400">CURIOSIDADE DO DIA ({topic})</span>
           </div>
           <div className="max-w-2xl">
             <div className="w-14 h-14 bg-sky-500/10 border border-sky-500/20 text-sky-400 flex items-center justify-center rounded-2xl mx-auto mb-6 text-2xl shadow-lg">
